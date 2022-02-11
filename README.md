@@ -4,16 +4,6 @@ Nesse desafio, você deverá criar testes unitários para uma aplicação j�
 
 Para que você possa focar somente na parte de testes unitários sem precisar estudar muito a aplicação do zero, o template foi desenvolvido com base em uma aplicação já conhecida: **FinAPI**. A API construída no primeiro módulo da trilha.
 
-## Template da aplicação
-
-Para realizar esse desafio, criamos para você esse modelo que você deve utilizar como um template do GitHub.
-
-O template está disponível na seguinte URL:
-
-[rocketseat-education/ignite-template-tests-challenge](https://github.com/rocketseat-education/ignite-template-tests-challenge)
-
-**Dica**: Caso não saiba utilizar repositórios do GitHub como template, temos um guia em **[nosso FAQ](https://www.notion.so/FAQ-Desafios-ddd8fcdf2339436a816a0d9e45767664).**
-
 ## Banco de dados
 
 Se você quiser testar a aplicação usando o Insomnia para ver o funcionamento até mesmo como auxílio para criar os testes unitários, é importante que você confira os dados de autenticação do banco no arquivo `ormconfig.json` e, se necessário, altere.
