@@ -28,9 +28,6 @@ export class Statement {
   @JoinColumn({ name: 'user_id' })
   user: User;
 
-  @Column('uuid')
-  sender_id?: string;
-
   @Column()
   description: string;
 
@@ -49,6 +46,7 @@ export class Statement {
   constructor() {
     if (!this.id) {
       this.id = uuid();
+
     }
   }
 }

@@ -95,7 +95,7 @@ describe("Create statement", () => {
     }).rejects.toBeInstanceOf(CreateStatementError.UserNotFound);
   });
 
-  it("should not be possible to create a withdraw when user has insufficient funds", async () => {
+  it("should not be possible to create a withdraw when user when balance <= 0", async () => {
     const user = await createUserUseCase.execute({
       name: "Jocatello",
       email: "bebe@doggo.com",
@@ -117,37 +117,4 @@ describe("Create statement", () => {
       })).rejects.toEqual(new CreateStatementError.InsufficientFunds());
   });
 
-  it("should be possible create a transfer", async () => {
-    const user1 = await createUserUseCase.execute({
-      name: "Joca",
-      email: "joca@email.com",
-      password: "1234"
-    })
-
-    const user2 = await createUserUseCase.execute({
-      name: "Donatello",
-      email: "donatello@email.com",
-      password: "1234"
-    })
-
-    await createStatementUseCase.execute({
-      user_id: user1.id as string,
-      type: OperationType.DEPOSIT,
-      amount: 1000,
-      description: "Deposit: R$ 1000",
-    });
-
-    const statement = await createStatementUseCase.execute({
-      user_id: user2.id as string,
-      sender_id: user1.id as string,
-      type: OperationType.TRANSFER,
-      amount: 500,
-      description: `Transfer: R$ 500 to ${user2.name}`,
-    });
-
-    //console.log(`LOOOG: ${user2.name}`);
-
-    expect(statement).toHaveProperty("id");
-    expect(statement.amount).toEqual(500);
-  });
 });

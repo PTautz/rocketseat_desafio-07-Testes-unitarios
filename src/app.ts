@@ -23,7 +23,7 @@ app.use(
         message: err.message
       });
     }
-
+    console.log (`MENSAGEM DE ERRO : ${err.message}`);
     return response.status(500).json({
       status: "error",
       message: `Internal server error - ${err.message} `,
