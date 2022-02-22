@@ -7,7 +7,7 @@ import createConnection from "../../../../database";
 
 let connection: Connection;
 
-const id = uuidv4();
+
 
 describe("Create statement", () => {
   beforeAll(async () => {
@@ -15,6 +15,7 @@ describe("Create statement", () => {
     connection = await createConnection();
     await connection.runMigrations();
 
+    const id = uuidv4();
     const password = await hash("batman", 8);
 
     // console.log(`UUID Statement Controller inicio: ${id}`);
@@ -24,6 +25,13 @@ describe("Create statement", () => {
         (id, name, email, password, created_at, updated_at)
       VALUES
         ('${id}', 'Donatello', 'donatello@dog.com', '${password}', 'now()', 'now()')
+    `);
+
+    await connection.query(`
+      INSERT INTO users
+        (id, name, email, password, created_at, updated_at)
+      VALUES
+        ('4d04b6ec-2280-4dc2-9432-8a00f64e7930', 'Jojoca', 'jojoca@bebe.com', '${password}', 'now()', 'now()')
     `);
   });
 
@@ -43,8 +51,8 @@ describe("Create statement", () => {
 
     const depositResponse = await request(app).post("/api/v1/statements/deposit")
     .send({
-      amount: 346,
-      description: `Deposit: R$ 346`,
+      amount: 1000,
+      description: `Deposit: R$ 1000`,
     })
     .set({
       Authorization: `Bearer ${token}`,
@@ -74,26 +82,21 @@ describe("Create statement", () => {
 
     const withdrawResponse = await request(app).post("/api/v1/statements/withdraw")
     .send({
-      amount: 46,
-      description: "Withdraw: R$ 46",
+      amount: 100,
+      description: "Withdraw: R$ 100",
     })
     .set({
       Authorization: `Bearer ${token}`,
     });
 
-    const statement = await request(app).get(`/api/v1/statements/${withdrawResponse.body.id}`).set({
-      Authorization: `Bearer ${token}`
-    });
-
-    console.log (`O valor da conta do Donatello depois do saque é : ${statement.body.amount}`);
 
     expect(withdrawResponse.status).toBe(201);
     expect(withdrawResponse.body).toHaveProperty("id");
-    expect(parseInt(statement.body.amount)).toEqual(46);
+
 
   });
 
-  it("should not be able to create a withdraw statement when the account has insufficient funds", async () => {
+  it("should not be possible to create a withdraw statement with no funds", async () => {
     const responseToken = await request(app).post("/api/v1/sessions")
     .send({
       email: "donatello@dog.com",
@@ -105,7 +108,7 @@ describe("Create statement", () => {
     const withdrawResponse = await request(app).post("/api/v1/statements/withdraw")
     .send({
       amount: 9001,
-      description: "Withdraw R$ 9001",
+      description: "Withdraw: R$ 9001",
     })
     .set({
       Authorization: `Bearer ${token}`,
@@ -113,6 +116,59 @@ describe("Create statement", () => {
 
     expect(withdrawResponse.status).toBe(400);
     console.log("It's Over nine thousand")
+  });
+
+  it("should be possible to create a transfer", async () => {
+    const responseToken = await request(app).post("/api/v1/sessions")
+    .send({
+      email: "donatello@dog.com",
+      password: "batman",
+    });
+
+    const { token } = responseToken.body;
+
+    const transferResponse = await request(app).post(`/api/v1/statements/transfer/4d04b6ec-2280-4dc2-9432-8a00f64e7930`)
+    .send({
+      amount: 100,
+      description: "Transfer: R$ 100",
+    })
+    .set({
+      Authorization: `Bearer ${token}`,
+    });
+
+    expect(transferResponse.status).toBe(201);
+    expect(transferResponse.body).toHaveProperty("id");
+  });
+
+  it("should not be possible to create a transfer statement with no funds", async () => {
+    const responseToken = await request(app).post("/api/v1/sessions")
+    .send({
+      email: "donatello@dog.com",
+      password: "batman",
+    });
+
+    const { token } = responseToken.body;
+
+    const response = await request(app).post(`/api/v1/statements/transfer/4d04b6ec-2280-4dc2-9432-8a00f64e7930`)
+    .send({
+      amount: 6000,
+      description: "Error transfer R$ 6000",
+    })
+    .set({
+      Authorization: `Bearer ${token}`,
+    });
+
+    const balanceLoggedUser = await request(app).get("/api/v1/statements/balance").set({
+      Authorization: `Bearer ${token}`
+    });
+
+
+    console.log(`O balanço do Donatello : ${balanceLoggedUser.body.balance}`);
+
+
+
+    expect(response.status).toBe(400);
+    expect(balanceLoggedUser.body.balance).toEqual(800);
   });
 
 });
