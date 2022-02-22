@@ -7,6 +7,11 @@ export namespace CreateStatementError {
     }
   }
 
+  export class SenderNotFound extends AppError {
+    constructor() {
+      super('Sender not found', 404);
+    }
+  }
   export class InsufficientFunds extends AppError {
     constructor() {
       super('Insufficient funds', 400);

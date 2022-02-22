@@ -55,7 +55,7 @@ describe("Get Statement Operation", () => {
     console.log(`operação de depósito no valor de : ${response.body.amount}`);
 
     expect(response.status).toBe(200);
-    expect(response.body).toStrictEqual(depositResponse.body);
+    expect(response.body.amount).toStrictEqual(depositResponse.body.amount);
   });
 
 

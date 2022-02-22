@@ -117,4 +117,39 @@ describe("Create statement", () => {
       })).rejects.toEqual(new CreateStatementError.InsufficientFunds());
   });
 
+  it("should be possible to create a transfer", async () => {
+    const user1 = await createUserUseCase.execute({
+      name: "Donatello",
+      email: "donatello@dog.com",
+      password: "1234"
+    })
+
+    const user2 = await createUserUseCase.execute({
+      name: "Jojoca",
+      email: "jojoca@dog.com",
+      password: "1234"
+    })
+
+    await createStatementUseCase.execute({
+      user_id: user1.id as string,
+      type: OperationType.DEPOSIT,
+      amount: 1000,
+      description: "Deposit: R$1000",
+    });
+
+    const statement = await createStatementUseCase.execute({
+      user_id: user2.id as string,
+      sender_id: user1.id as string,
+      type: OperationType.TRANSFER,
+      amount: 500,
+      description: "Transfer $500 to Jojoca",
+    });
+
+
+
+    expect(statement).toHaveProperty("id");
+    expect(statement.amount).toEqual(500);
+  });
 });
+
+
